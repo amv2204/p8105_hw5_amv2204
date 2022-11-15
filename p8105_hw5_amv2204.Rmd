@@ -1,0 +1,61 @@
+---
+title: "Homework 5"
+author: "Ashwini Varghese"
+date: "2022-11-16"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+## Problem 1:
+
+
+
+## Problem 2:
+
+```{r}
+homicides <- read.csv("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv")
+
+
+```
+
+The dataset `homicides` contains `r ncol(homicides)` variables and `r nrow(homicides)` observations. It describes information on homicides from 50 large US cities. Variables of interest include the case ID, the date of the incident, information on the victim (name, race, age and sex), information on the location of the homicide, and the disposition of the case. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
