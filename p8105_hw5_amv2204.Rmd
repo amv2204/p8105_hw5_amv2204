@@ -36,21 +36,33 @@ scale_fill_discrete = scale_fill_viridis_d
 ## Problem 2:
 
 ```{r}
-homicides <- read.csv("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv")
-
+homicides = read.csv("./homicide-data.csv")
 
 ```
 
-The dataset `homicides` contains `r ncol(homicides)` variables and `r nrow(homicides)` observations. It describes information on homicides from 50 large US cities. Variables of interest include the case ID, the date of the incident, information on the victim (name, race, age and sex), information on the location of the homicide, and the disposition of the case. 
+The raw dataset `homicides` contains `r ncol(homicides)` variables and `r nrow(homicides)` observations. It describes information on homicides from 50 large US cities. Variables of interest include the case ID, the date of the incident, information on the victim (name, race, age and sex), information on the location of the homicide, and the disposition of the case. 
 
+We will create a new variable `city_state`.
 
+```{r}
+new_homi <- homicides %>%
+  unite("city_state", city:state, sep = ", ", remove = FALSE)
+```
 
+We will first look at the total number of homicides in a city and then at the number of homicides that are unsolved in a city.
 
+```{r}
+new_homi %>% 
+  group_by(city) %>%
+  summarize(count = n()) %>%
+  knitr::kable(digits = 1)
 
-
-
-
-
+new_homi %>% 
+  filter(disposition %in% c("Closed without arrest", "Open/No arrest")) %>%
+  group_by(city) %>%
+  summarize(count = n()) %>%
+  knitr::kable(digits = 1)
+```
 
 
 
