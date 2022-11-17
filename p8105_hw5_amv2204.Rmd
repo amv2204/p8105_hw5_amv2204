@@ -88,6 +88,8 @@ Balt_test <- prop.test(1825, 2827) %>%
 
 The proportion of homicides that are unsolved is 0.646 with a confidence interval of 0.628 and 0.663.
 
+Now we will create a function to do this for all the cities in the dataset:
+
 ```{r}
 homi_nest =
   new_homi %>% 
@@ -128,6 +130,9 @@ final %>%
 
 ```
 
+The above plot shows the proportion of unsolved homicides in each city with its corresponding confidence interval. There was an error in the data where Tulsa, AL was incorrected entered for Tulsa, OK. Instead of completely removing it from the dataset, I filtered it out of the plot.
+
+
 ## Problem 3:
 
 
@@ -162,13 +167,17 @@ expand.grid(mu = c(1:6), run = 1:50) %>%
 
 
 ```{r}
-all_sims %>%
+final_set <- 
+  all_sims %>%
   mutate(conclusion = if_else(p.value > 0.05, "Do not reject null", "Reject null")) %>%
   group_by(mu, conclusion) %>%
   summarise(n = n()) %>% 
   mutate(power = n/sum(n)) %>%
   filter(conclusion == "Reject null") %>% 
-  select(mu, power) %>% 
+  select(mu, power)
+  
+power_plot =
+  final_set %>%   
   ggplot(aes(x = mu, y = power)) +
   geom_line() +
   geom_point() +
@@ -180,23 +189,62 @@ all_sims %>%
     scale_x_continuous(
     breaks = c(1, 2, 3, 4, 5, 6))
 
+power_plot
+
 ```
 
 
 ```{r}
+avg_mu <-   
+  all_sims %>%
+  group_by(mu) %>%
+  summarize(avg_mu = mean(estimate)) %>%
+  mutate(data = "Null not rejected")
+
+plot2 = 
+  avg_mu %>%
+  ggplot(aes(x = mu, y = avg_mu)) +
+  geom_point() +
+  geom_line() +
+  labs(
+    title = "Mu by Average Mu",
+    x = "Mu",
+    y = "Average of Mu"
+  ) +
+    scale_x_continuous(
+    breaks = c(1, 2, 3, 4, 5, 6))
+
+plot2
+
+
+only_rejections <- 
+  all_sims %>%
+  mutate(conclusion = if_else(p.value > 0.05, "Do not reject null", "Reject null")) %>% 
+  filter(conclusion == "Reject null") %>% 
+  group_by(mu) %>%
+  summarize(avg_mu = mean(estimate)) %>%
+  mutate(data = "Null rejected")
+
+
+plot3 <-   
+  only_rejections %>%
+  ggplot(aes(x = mu, y = avg_mu)) +
+  geom_point() +
+  geom_line() +
+  labs(
+    title = "Mu by Average Mu for Rejected Nulls",
+    x = "Mu",
+    y = "Average of Mu"
+  ) +
+    scale_x_continuous(
+    breaks = c(1, 2, 3, 4, 5, 6))
+
+plot3
 
 ```
 
 
-
-
-
-
-
-
-
-
-
+As we can see from the plot, as the true mu gets higher, the average mu of the tests where the null is rejected gets closer to the true mu as opposed to when the mu is smaller.
 
 
 
