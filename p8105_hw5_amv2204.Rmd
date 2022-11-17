@@ -31,6 +31,16 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ## Problem 1:
 
+```{r}
+full_df = 
+  tibble(
+    files = list.files("hw5_data/data/zip_data/"),
+    path = str_c("hw5_data/data/zip_data/", files)
+  ) %>% 
+  mutate(data = map(path, read_csv)) %>% 
+  unnest()
+```
+
 
 
 ## Problem 2:
@@ -151,16 +161,18 @@ sims = function(mu) {
 }
 
 just_zero = 
-expand.grid(mu = 0, run = 1:50) %>% 
+expand.grid(mu = 0, run = 1:5000) %>% 
   mutate(value = map(mu, sims)) %>%
   unnest(value)
 
 
 ```
 
+Since this simulation works on mu = 0, we will iterate it on 1 to 6 now:
+
 ```{r}
 all_sims = 
-expand.grid(mu = c(1:6), run = 1:50) %>% 
+expand.grid(mu = c(1:6), run = 1:5000) %>% 
   mutate(value = map(mu, sims)) %>%
   unnest(value)
 ```
@@ -192,6 +204,8 @@ power_plot =
 power_plot
 
 ```
+
+We can see from the plot that as the effect size gets larger, power also gets larger.
 
 
 ```{r}
