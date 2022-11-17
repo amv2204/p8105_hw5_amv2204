@@ -64,6 +64,95 @@ new_homi %>%
   knitr::kable(digits = 1)
 ```
 
+`prop.test`
+
+```{r}
+new_homi %>%
+  filter(city_state == "Baltimore, MD") %>%
+  summarize(count = n())
+
+new_homi %>%
+  filter(city_state == "Baltimore, MD") %>%
+  filter(disposition %in% c("Closed without arrest", "Open/No arrest")) %>%
+  summarize(count = n())
+
+```
+
+From the above code, we see that in the city of Baltimore, MD, there were a total of 2827 homicides and of those homicides, 1825 were unsolved. We can use `prop.test` to estimate the proportion of homicides that are unsolved and its confidence interval.
+
+```{r}
+Balt_test <- prop.test(1825, 2827) %>%
+  broom::tidy() %>%
+  select(estimate, starts_with("conf"))
+```
+
+The proportion of homicides that are unsolved is 0.646 with a confidence interval of 0.628 and 0.663.
+
+```{r}
+homi_nest =
+  new_homi %>% 
+  relocate(city_state) %>% 
+  nest(data = uid:disposition)
+
+prop = function(df) {
+
+  data_result = df %>% 
+    summarize(total = n(),
+              unsolved = sum(disposition %in% c("Closed without arrest", "Open/No arrest")))
+    
+  prop_results = 
+    prop.test(x = data_result %>% pull(unsolved), 
+              n = data_result %>% pull(total))
+
+  return(prop_results)
+}
+
+
+final <- homi_nest %>% 
+  mutate(results = map(data, prop),
+         estimates = map(results, broom::tidy)) %>% 
+  select(city_state, estimates) %>% 
+  unnest(estimates) %>%
+  select(city_state, estimate, starts_with("conf"))
+
+
+final %>% 
+  filter(city_state != "Tulsa, AL") %>% 
+  mutate(city_state = fct_reorder(city_state, estimate)) %>% 
+  ggplot(aes(x = city_state, y = estimate)) + 
+    geom_line() +
+    geom_point()+
+    geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width=.2,
+                 position=position_dodge(0.05))+
+    theme(axis.text.x = element_text(angle = 90))
+
+```
+
+
+```{r}
+#rnorm(n = 30, mean = 0, sd = 5)
+
+#rerun(5000, rnorm(n = 30, mean = 0, sd = 5))
+
+trial = function(mu) {
+  
+  tibble_df = 
+    tibble(x = rnorm(n = 30, mean = mu, sd = 5))
+  t.test(tibble_df) %>% 
+    broom::tidy() %>% 
+    select(estimate, p.value)
+}
+
+expand.grid(mu = 0, run = 1:5000) %>% 
+  mutate(value = map(mu, trial)) %>%
+  unnest(value)
+
+
+
+```
+
+
+
 
 
 
